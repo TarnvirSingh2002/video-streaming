@@ -4,6 +4,9 @@ import multer from "multer";
 import { v4 as uuidv4} from "uuid";
 import path from "path"
 import fs from "fs"
+import { exec } from "child_process";//watch me
+// import { error } from "console";
+// import { stderr, stdout } from "process";
 
 const app = express();
 
@@ -37,12 +40,28 @@ app.post('/uplo',upload.single('file'),(req,res)=>{// here (file) is the name th
     if(!fs.existsSync(outputPath)){
       fs.mkdirSync(outputPath,{recursive: true})
     }
-    //ffmpeg
 
+
+    //ffmpeg
+    const ffmpegCommand = `ffmpeg -i ${videoPath} -codec:v libx264 -codec:a aac -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputPath}/segment%03d.ts" -start_number 0 ${hlsPath}
+`;
+
+  exec(ffmpegCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.log(`exec error: ${error}`)
+    }
+    console.log(`stdout: ${stdout}`)
+    console.log(`stderr: ${stderr}`)
+    const videoUrl = `http://localhost:8000/uploads/courses/${lessonId}/index.m3u8`;
+
+    res.json({
+      message: "Video converted to HLS format",
+      videoUrl: videoUrl,
+      lessonId: lessonId
+    })
+  })
     
 });
-
-
 
 app.listen(3000, () => {
     console.log("listen at port 3000");
