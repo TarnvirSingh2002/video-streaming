@@ -21,8 +21,7 @@ const storage = multer.diskStorage({// in this we tell that we save in the disk 
     cb(null, './uploads'); // Save to 'uploads' folder
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + uuidv4() + path.extname //in thid we create the file name
-    (file.originalname));
+    cb(null, file.fieldname + '-' + uuidv4() + path.extname(file.originalname));//in thid we create the file name
   }
 });
 
@@ -35,7 +34,6 @@ app.post('/uplo',upload.single('file'),(req,res)=>{// here (file) is the name th
     const videoPath=req.file.path;
     const outputPath = `./uploads/courses/${lessonId}`
     const hlsPath=`${outputPath}/index.m3u8`
-    console.log("hlsPath:",hlsPath);
 
     if(!fs.existsSync(outputPath)){
       fs.mkdirSync(outputPath,{recursive: true})
